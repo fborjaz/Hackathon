@@ -21,9 +21,8 @@ class EmailSelectionView(View):
 
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
-        filter_messages = data.get('filter_messages')
         page_token = request.GET.get('pageToken')
-        age = data.get('age', '1y')  # Obtener la antigüedad, por defecto 1 año
+        age = data.get('age', '1y')
 
         creds = None
         if os.path.exists("delete_email/token.json"):
