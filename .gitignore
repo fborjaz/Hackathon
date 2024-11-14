@@ -112,3 +112,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Credencial y token 
+credentials.json
+token.json
+delete_email/credentials.json
+delete_email/token.json
