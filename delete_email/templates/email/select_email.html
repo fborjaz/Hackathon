@@ -2,12 +2,21 @@
 {% block content %}
 <div class="mx-auto max-w-xl p-8 text-center">
     <h1 class="text-2xl font-bold mb-4">Filtrar Correos no Deseados</h1>
-    <p class="mb-4">Selecciona una categoría para ver y eliminar correos no deseados.</p>
+    <p class="mb-4">Selecciona una categoría y antigüedad para ver y eliminar correos no deseados.</p>
 
-    <label for="select" class="block text-lg mb-2">Selecciona un filtro:</label>
-    <select id="select" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+    <label for="selectCategory" class="block text-lg mb-2">Selecciona una categoría:</label>
+    <select id="selectCategory" class="w-full p-2 border border-gray-300 rounded-md mb-4">
         <option value="promotions">Promociones</option>
         <option value="social">Redes Sociales</option>
+    </select>
+
+    <label for="selectAge" class="block text-lg mb-2">Selecciona antigüedad:</label>
+    <select id="selectAge" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+        <option value="1d">1 día</option>
+        <option value="1w">1 semana</option>
+        <option value="1m">1 mes</option>
+        <option value="1y" selected>1 año</option>
+        <option value="2y">2 años</option>
     </select>
 
     <button id="send" class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Buscar Correos</button>
@@ -40,7 +49,8 @@
 
     const csrftoken = getCookie('csrftoken');
     const sendButton = document.getElementById('send');
-    const select = document.getElementById('select');
+    const selectCategory = document.getElementById('selectCategory');
+    const selectAge = document.getElementById('selectAge');
     const messageContainer = document.getElementById('messageContents');
     const deleteSelectedButton = document.getElementById('deleteSelected');
     const deleteAllButton = document.getElementById('deleteAll');
@@ -55,7 +65,10 @@
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrftoken
             },
-            body: JSON.stringify({ filter_messages: select.value })
+            body: JSON.stringify({ 
+                filter_messages: selectCategory.value,
+                age: selectAge.value 
+            })
         });
 
         const data = await response.json();
@@ -99,7 +112,6 @@
 
             deleteSelectedButton.classList.remove('hidden');
 
-            // Paginación
             nextPageToken = data.nextPageToken;
             paginationContainer.innerHTML = '';
             if (nextPageToken) {
@@ -138,7 +150,7 @@
         const result = await response.json();
         if (result.success) {
             alert("Correos eliminados correctamente.");
-            fetchEmails();
+            fetchEmails(); 
         } else {
             alert("Hubo un error al eliminar los correos.");
         }
@@ -152,13 +164,17 @@
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrftoken
                 },
-                body: JSON.stringify({ filter: select.value, pageToken: nextPageToken, additionalCriteria: 'is:unread older_than:1y'})
+                body: JSON.stringify({ 
+                    filter: selectCategory.value, 
+                    pageToken: nextPageToken, 
+                    additionalCriteria: `is:unread older_than:${selectAge.value}`
+                })
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
                     alert("Correos eliminados correctamente.");
-                    fetchEmails();
+                    fetchEmails(); 
                 } else {
                     alert("Hubo un error al eliminar los correos.");
                 }
@@ -166,4 +182,4 @@
         }
     });
 </script>
-{% endblock %}
+{% endblock %}  

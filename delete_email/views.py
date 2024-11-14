@@ -15,7 +15,7 @@ from django.utils.decorators import method_decorator
 SCOPES = ["https://mail.google.com/"]
 
 @method_decorator(csrf_exempt, name="dispatch")
-class NameView(View):
+class EmailSelectionView(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'email/select_email.html')
 
@@ -23,6 +23,7 @@ class NameView(View):
         data = json.loads(request.body)
         filter_messages = data.get('filter_messages')
         page_token = request.GET.get('pageToken')
+        age = data.get('age', '1y')  # Obtener la antigüedad, por defecto 1 año
 
         creds = None
         if os.path.exists("delete_email/token.json"):
@@ -44,8 +45,8 @@ class NameView(View):
             for category in ["promotions", "social"]:
                 results = service.users().messages().list(
                     userId="me", 
-                    maxResults=10,  # Aumentado a 10 resultados por página
-                    q=f"category:{category} is:unread older_than:1y",
+                    maxResults=10,
+                    q=f"category:{category} is:unread older_than:{age}",  # Usar la antigüedad en la consulta
                     pageToken=page_token if page_token else None
                 ).execute()
                 messages = results.get("messages", [])
@@ -75,7 +76,8 @@ class NameView(View):
 
         except HttpError as error:
             return JsonResponse({'error': str(error)})
-
+         
+@method_decorator(csrf_exempt, name="dispatch")
 class DeleteEmailsView(View):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
@@ -95,23 +97,23 @@ class DeleteEmailsView(View):
 
         except HttpError as error:
             return JsonResponse({'error': f'Error deleting emails: {error}'}, status=500)
-
+         
+@method_decorator(csrf_exempt, name="dispatch")
 class DeleteAllEmailsView(View):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
         filter_messages = data.get('filter')
         page_token = data.get('pageToken')
         additional_criteria = data.get('additionalCriteria')
-        
 
         try:
             creds = Credentials.from_authorized_user_file("delete_email/token.json", SCOPES)
             service = build("gmail", "v1", credentials=creds)
 
             results = service.users().messages().list(
-                  userId="me", 
-                  q=f"category:{filter_messages} {additional_criteria}",
-                  pageToken=page_token if page_token else None
+                userId="me", 
+                q=f"category:{filter_messages} {additional_criteria}",
+                pageToken=page_token if page_token else None
             ).execute()
             messages = results.get("messages", [])
             message_ids = [message['id'] for message in messages]
