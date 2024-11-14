@@ -1,44 +1,85 @@
 {% extends 'layout/base.html' %} 
 
 {% block content %}
-<div class="mx-auto max-w-xl p-8 text-center">
-    <h1 class="text-2xl font-bold mb-4">Filtrar Correos no Deseados</h1>
-    <p class="mb-4">
-        Selecciona una categoría y antigüedad para ver y eliminar correos no deseados.
-    </p>
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <!-- Cabecera -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Filtrar Correos no Deseados</h1>
+                <p class="text-gray-600">
+                    Selecciona una categoría y antigüedad para ver y eliminar correos no deseados.
+                </p>
+            </div>
 
-    <label for="selectCategory" class="block text-lg mb-2">Selecciona una categoría:</label>
-    <select id="selectCategory" class="w-full p-2 border border-gray-300 rounded-md mb-4">
-        <option value="promotions">Promociones</option>
-        <option value="social">Redes Sociales</option>
-    </select>
+            <!-- Filtros -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="space-y-2">
+                    <label for="selectCategory" class="block text-sm font-medium text-gray-700">
+                        Selecciona una categoría:
+                    </label>
+                    <select id="selectCategory" 
+                            class="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <option value="promotions">Promociones</option>
+                        <option value="social">Redes Sociales</option>
+                    </select>
+                </div>
 
-    <label for="selectAge" class="block text-lg mb-2">Selecciona antigüedad:</label>
-    <select id="selectAge" class="w-full p-2 border border-gray-300 rounded-md mb-4">
-        <option value="1d">1 día</option>
-        <option value="1w">1 semana</option>
-        <option value="1m">1 mes</option>
-        <option value="1y" selected>1 año</option>
-        <option value="2y">2 años</option>
-    </select>
+                <div class="space-y-2">
+                    <label for="selectAge" class="block text-sm font-medium text-gray-700">
+                        Selecciona antigüedad:
+                    </label>
+                    <select id="selectAge" 
+                            class="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <option value="1d">1 día</option>
+                        <option value="1w">1 semana</option>
+                        <option value="1m">1 mes</option>
+                        <option value="1y">1 año</option>
+                        <option value="2y">2 años</option>
+                    </select>
+                </div>
+            </div>
 
-    <button id="send" class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-        Buscar Correos
-    </button>
+            <button id="send" 
+                    class="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                Buscar Correos
+            </button>
+        </div>
+
+        <!-- Lista de Correos -->
+        <div id="messageContents" class="space-y-4"></div>
+
+        <!-- Mensaje de No resultados -->
+        <div id="noResultsMessage" class="text-center text-gray-500 hidden py-12">
+            <p>No se encontraron correos para la categoría y antigüedad seleccionadas.</p>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="space-y-3 mt-6">
+            <button id="deleteSelected" 
+                    class="w-full p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 transition-colors hidden flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Eliminar Seleccionados
+            </button>
+            
+            <button id="deleteAll" 
+                    class="w-full p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 transition-colors flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Eliminar todos los correos
+            </button>
+        </div>
+
+        <!-- Paginación -->
+        <div id="pagination" class="mt-6 text-center"></div>
+    </div>
 </div>
-
-<div id="messageContents" class="mx-auto max-w-xl p-4 space-y-4"></div>
-
-<div class="text-center">
-    <button id="deleteSelected" class="w-full max-w-xl p-2 bg-red-500 text-white rounded-md hover:bg-red-600 mx-auto hidden">
-        Eliminar Seleccionados
-    </button>
-    <button id="deleteAll" class="w-full max-w-xl p-2 bg-red-500 text-white rounded-md hover:bg-red-600 mx-auto mt-2">
-        Eliminar todos los correos
-    </button>
-</div>
-
-<div id="pagination" class="text-center mt-4"></div>
 
 <script>
   function getCookie(name) {
@@ -64,152 +105,119 @@
   const deleteSelectedButton = document.getElementById("deleteSelected");
   const deleteAllButton = document.getElementById("deleteAll");
   const paginationContainer = document.getElementById("pagination");
+  const noResultsMessage = document.getElementById("noResultsMessage");
 
   let nextPageToken = "";
 
   async function fetchEmails(pageToken = "") {
-    const response = await fetch(`/api/email/?pageToken=${pageToken}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
-      },
-      body: JSON.stringify({
-        filter_messages: selectCategory.value,
-        age: selectAge.value,
-      }),
-    });
+    // Mostrar estado de carga
+    sendButton.disabled = true;
+    sendButton.innerHTML = `
+      <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Cargando...
+    `;
 
-    const data = await response.json();
-    console.log(data);
-
-    messageContainer.innerHTML = "";
-    if (data.message_contents) {
-      data.message_contents.forEach((msg) => {
-        const messageElement = document.createElement("div");
-        messageElement.classList.add(
-          "border",
-          "p-4",
-          "rounded-md",
-          "flex",
-          "items-center",
-          "justify-between",
-          "space-x-4"
-        );
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.classList.add("message-checkbox");
-        checkbox.value = msg.id;
-
-        const messageInfo = document.createElement("div");
-        messageInfo.classList.add("text-left", "flex", "items-center");
-
-        const senderImg = document.createElement("img");
-        senderImg.src = msg.profileImage || "default-image-url";
-        senderImg.alt = "Imagen de perfil";
-        senderImg.classList.add("w-10", "h-10", "rounded-full", "mr-4");
-
-        const sender = document.createElement("p");
-        sender.textContent = `De: ${msg.sender}`;
-        sender.classList.add("font-bold");
-
-        const subject = document.createElement("p");
-        subject.textContent = `Asunto: ${msg.subject}`;
-        subject.classList.add("text-gray-600");
-
-        messageInfo.appendChild(senderImg);
-        messageInfo.appendChild(sender);
-        messageInfo.appendChild(subject);
-
-        messageElement.appendChild(checkbox);
-        messageElement.appendChild(messageInfo);
-        messageContainer.appendChild(messageElement);
-      });
-
-      deleteSelectedButton.classList.remove("hidden");
-
-      nextPageToken = data.nextPageToken;
-      paginationContainer.innerHTML = "";
-      if (nextPageToken) {
-        const nextPageButton = document.createElement("button");
-        nextPageButton.textContent = "Cargar más correos";
-        nextPageButton.classList.add(
-          "p-2",
-          "bg-blue-500",
-          "text-white",
-          "rounded-md",
-          "hover:bg-blue-600"
-        );
-        nextPageButton.addEventListener("click", () =>
-          fetchEmails(nextPageToken)
-        );
-        paginationContainer.appendChild(nextPageButton);
-      }
-    } else {
-      messageContainer.textContent = data.message || `Error: ${data.error}`;
-      deleteSelectedButton.classList.add("hidden");
-    }
-  }
-
-  sendButton.addEventListener("click", () => fetchEmails());
-
-  deleteSelectedButton.addEventListener("click", async () => {
-    const selectedMessages = Array.from(
-      document.querySelectorAll(".message-checkbox:checked")
-    ).map((checkbox) => checkbox.value);
-
-    if (selectedMessages.length === 0) {
-      alert("Selecciona al menos un correo para eliminar.");
-      return;
-    }
-
-    const response = await fetch("/api/delete/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
-      },
-      body: JSON.stringify({ message_ids: selectedMessages }),
-    });
-
-    const result = await response.json();
-    if (result.success) {
-      alert("Correos eliminados correctamente.");
-      fetchEmails();
-    } else {
-      alert("Hubo un error al eliminar los correos.");
-    }
-  });
-
-  deleteAllButton.addEventListener("click", () => {
-    if (
-      confirm(
-        "¿Estás seguro de que quieres eliminar todos los correos? Esta acción no se puede deshacer."
-      )
-    ) {
-      fetch("/api/delete_all/", {
+    try {
+      const response = await fetch(`/api/email/?pageToken=${pageToken}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": csrftoken,
         },
         body: JSON.stringify({
-          filter: selectCategory.value,
-          pageToken: nextPageToken,
-          additionalCriteria: `is:unread older_than:${selectAge.value}`,
+          filter_messages: selectCategory.value,
+          age: selectAge.value,
         }),
-      })
-        .then((response) => response.json())
-        .then((result) => {
-          if (result.success) {
-            alert("Correos eliminados correctamente.");
-            fetchEmails();
-          } else {
-            alert("Hubo un error al eliminar los correos.");
-          }
+      });
+
+      const data = await response.json();
+      messageContainer.innerHTML = "";
+      noResultsMessage.classList.add("hidden");
+
+      if (data.message_contents && data.message_contents.length > 0) {
+        data.message_contents.forEach((msg) => {
+          const messageElement = document.createElement("div");
+          messageElement.className = "bg-white rounded-lg shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition-shadow";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.className = "message-checkbox w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500";
+          checkbox.value = msg.id;
+
+          const messageInfo = document.createElement("div");
+          messageInfo.className = "flex items-center flex-1 min-w-0";
+
+          const senderImg = document.createElement("img");
+          senderImg.src = msg.profileImage || "/static/default-avatar.png";
+          senderImg.alt = "Imagen de perfil";
+          senderImg.className = "w-10 h-10 rounded-full object-cover";
+
+          const textContainer = document.createElement("div");
+          textContainer.className = "ml-4 flex-1 min-w-0";
+
+          const sender = document.createElement("p");
+          sender.textContent = msg.sender;
+          sender.className = "font-medium text-gray-900 truncate";
+
+          const subject = document.createElement("p");
+          subject.textContent = msg.subject;
+          subject.className = "text-gray-500 truncate";
+
+          textContainer.appendChild(sender);
+          textContainer.appendChild(subject);
+
+          messageInfo.appendChild(senderImg);
+          messageInfo.appendChild(textContainer);
+
+          messageElement.appendChild(checkbox);
+          messageElement.appendChild(messageInfo);
+          messageContainer.appendChild(messageElement);
         });
+
+        deleteSelectedButton.classList.remove("hidden");
+
+        // Actualizar paginación
+        nextPageToken = data.nextPageToken;
+        paginationContainer.innerHTML = "";
+        if (nextPageToken) {
+          const nextPageButton = document.createElement("button");
+          nextPageButton.className = "inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500";
+          nextPageButton.innerHTML = `
+            Cargar más correos
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          `;
+          nextPageButton.addEventListener("click", () => fetchEmails(nextPageToken));
+          paginationContainer.appendChild(nextPageButton);
+        }
+      } else {
+        noResultsMessage.classList.remove("hidden");
+        deleteSelectedButton.classList.add("hidden");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      messageContainer.innerHTML = `
+        <div class="text-center py-12">
+          <p class="text-red-500">Error al cargar los correos. Por favor, intenta de nuevo.</p>
+        </div>
+      `;
+    } finally {
+      // Restaurar botón de búsqueda
+      sendButton.disabled = false;
+      sendButton.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        Buscar Correos
+      `;
     }
-  });
+  }
+
+  sendButton.addEventListener("click", () => fetchEmails());
+
 </script>
 {% endblock %}

@@ -8,11 +8,11 @@ from googleapiclient.errors import HttpError
 import os
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-SCOPES = ["https://mail.google.com/"]
+# Scopes necesarios para acceder a Gmail y Google People
+SCOPES = ["https://mail.google.com/", "https://www.googleapis.com/auth/contacts.readonly"]
 
 @method_decorator(csrf_exempt, name="dispatch")
 class EmailSelectionView(View):
@@ -38,14 +38,18 @@ class EmailSelectionView(View):
                 token.write(creds.to_json())
 
         try:
+            # Construir el servicio de Gmail
             service = build("gmail", "v1", credentials=creds)
             
+            # Construir el servicio de Google People para obtener fotos de perfil
+            people_service = build("people", "v1", credentials=creds)
+
             message_contents = []
             for category in ["promotions", "social"]:
                 results = service.users().messages().list(
                     userId="me", 
                     maxResults=10,
-                    q=f"category:{category} is:unread older_than:{age}",  # Usar la antigüedad en la consulta
+                    q=f"category:{category} is:unread older_than:{age}",
                     pageToken=page_token if page_token else None
                 ).execute()
                 messages = results.get("messages", [])
@@ -60,7 +64,11 @@ class EmailSelectionView(View):
                     sender = next((header["value"] for header in headers if header["name"] == "From"), "Remitente desconocido")
                     subject = next((header["value"] for header in headers if header["name"] == "Subject"), "Sin asunto")
 
-                    profile_image_url = f"https://www.gravatar.com/avatar/{hash(sender)}?d=identicon"
+                    # Extraer el correo electrónico del remitente
+                    sender_email = sender.split('<')[-1].split('>')[0] if '<' in sender else sender
+
+                    # Obtener la foto de perfil del remitente usando la API de Google People
+                    profile_image_url = self.get_profile_image(people_service, sender_email)
 
                     message_contents.append({
                         'id': message['id'],
@@ -75,7 +83,23 @@ class EmailSelectionView(View):
 
         except HttpError as error:
             return JsonResponse({'error': str(error)})
-         
+
+    def get_profile_image(self, people_service, email):
+        try:
+            # Consultar la API de Google People para obtener la foto de perfil
+            profile = people_service.people().get(
+                resourceName=f'people/{email}',
+                personFields='photos'
+            ).execute()
+
+            # Extraer la URL de la foto de perfil si existe
+            if 'photos' in profile:
+                return profile['photos'][0]['url']
+            return "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon"  # Imagen por defecto si no tiene foto
+        except HttpError:
+            return "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon"  # Imagen por defecto en caso de error
+
+
 @method_decorator(csrf_exempt, name="dispatch")
 class DeleteEmailsView(View):
     def post(self, request, *args, **kwargs):
@@ -96,7 +120,8 @@ class DeleteEmailsView(View):
 
         except HttpError as error:
             return JsonResponse({'error': f'Error deleting emails: {error}'}, status=500)
-         
+
+
 @method_decorator(csrf_exempt, name="dispatch")
 class DeleteAllEmailsView(View):
     def post(self, request, *args, **kwargs):
