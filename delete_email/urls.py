@@ -1,6 +1,7 @@
 from django.urls import path
-from . import views
+from .views import NameView, DeleteEmailsView
 
 urlpatterns = [
-   path('', views.home, name='home'),
+    path('email/', NameView.as_view(), name='name-view'),
+    path('delete/', DeleteEmailsView.as_view(), name='delete-emails'),
 ]

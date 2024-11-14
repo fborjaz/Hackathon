@@ -1,0 +1,169 @@
+{% extends 'layout/base.html' %}
+{% block content %}
+<div class="mx-auto max-w-xl p-8 text-center">
+    <h1 class="text-2xl font-bold mb-4">Filtrar Correos no Deseados</h1>
+    <p class="mb-4">Selecciona una categoría para ver y eliminar correos no deseados.</p>
+
+    <label for="select" class="block text-lg mb-2">Selecciona un filtro:</label>
+    <select id="select" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+        <option value="promotions">Promociones</option>
+        <option value="social">Redes Sociales</option>
+    </select>
+
+    <button id="send" class="w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Buscar Correos</button>
+</div>
+
+<div id="messageContents" class="mx-auto max-w-xl p-4 space-y-4"></div>
+
+<div class="text-center"> 
+    <button id="deleteSelected" class="w-full max-w-xl p-2 bg-red-500 text-white rounded-md hover:bg-red-600 mx-auto hidden">Eliminar Seleccionados</button>
+    <button id="deleteAll" class="w-full max-w-xl p-2 bg-red-500 text-white rounded-md hover:bg-red-600 mx-auto mt-2">Eliminar todos los correos</button>
+</div>
+
+<div id="pagination" class="text-center mt-4"></div>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+    const sendButton = document.getElementById('send');
+    const select = document.getElementById('select');
+    const messageContainer = document.getElementById('messageContents');
+    const deleteSelectedButton = document.getElementById('deleteSelected');
+    const deleteAllButton = document.getElementById('deleteAll');
+    const paginationContainer = document.getElementById('pagination');
+
+    let nextPageToken = ''; 
+
+    async function fetchEmails(pageToken = '') {
+        const response = await fetch(`/api/email/?pageToken=${pageToken}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({ filter_messages: select.value })
+        });
+
+        const data = await response.json();
+        console.log(data);
+
+        messageContainer.innerHTML = '';
+        if (data.message_contents) {
+            data.message_contents.forEach((msg) => {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('border', 'p-4', 'rounded-md', 'flex', 'items-center', 'justify-between', 'space-x-4');
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.classList.add('message-checkbox');
+                checkbox.value = msg.id;
+
+                const messageInfo = document.createElement('div');
+                messageInfo.classList.add('text-left', 'flex', 'items-center'); 
+
+                const senderImg = document.createElement('img');
+                senderImg.src = msg.profileImage || 'default-image-url';
+                senderImg.alt = "Imagen de perfil";
+                senderImg.classList.add('w-10', 'h-10', 'rounded-full', 'mr-4');
+
+                const sender = document.createElement('p');
+                sender.textContent = `De: ${msg.sender}`;
+                sender.classList.add('font-bold');
+
+                const subject = document.createElement('p');
+                subject.textContent = `Asunto: ${msg.subject}`;
+                subject.classList.add('text-gray-600');
+
+                messageInfo.appendChild(senderImg);
+                messageInfo.appendChild(sender);
+                messageInfo.appendChild(subject);
+
+                messageElement.appendChild(checkbox);
+                messageElement.appendChild(messageInfo);
+                messageContainer.appendChild(messageElement);
+            });
+
+            deleteSelectedButton.classList.remove('hidden');
+
+            // Paginación
+            nextPageToken = data.nextPageToken;
+            paginationContainer.innerHTML = '';
+            if (nextPageToken) {
+                const nextPageButton = document.createElement('button');
+                nextPageButton.textContent = "Cargar más correos";
+                nextPageButton.classList.add('p-2', 'bg-blue-500', 'text-white', 'rounded-md', 'hover:bg-blue-600');
+                nextPageButton.addEventListener('click', () => fetchEmails(nextPageToken));
+                paginationContainer.appendChild(nextPageButton);
+            }
+        } else {
+            messageContainer.textContent = data.message || `Error: ${data.error}`;
+            deleteSelectedButton.classList.add('hidden');
+        }
+    }
+
+    sendButton.addEventListener('click', () => fetchEmails());
+
+    deleteSelectedButton.addEventListener('click', async () => {
+        const selectedMessages = Array.from(document.querySelectorAll('.message-checkbox:checked'))
+            .map(checkbox => checkbox.value);
+
+        if (selectedMessages.length === 0) {
+            alert("Selecciona al menos un correo para eliminar.");
+            return;
+        }
+
+        const response = await fetch('/api/delete/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({ message_ids: selectedMessages })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert("Correos eliminados correctamente.");
+            fetchEmails();
+        } else {
+            alert("Hubo un error al eliminar los correos.");
+        }
+    });
+
+    deleteAllButton.addEventListener('click', () => {
+        if (confirm("¿Estás seguro de que quieres eliminar todos los correos? Esta acción no se puede deshacer.")) {
+            fetch('/api/delete_all/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ filter: select.value, pageToken: nextPageToken, additionalCriteria: 'is:unread older_than:1y'})
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert("Correos eliminados correctamente.");
+                    fetchEmails();
+                } else {
+                    alert("Hubo un error al eliminar los correos.");
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
