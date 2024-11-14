@@ -50,7 +50,13 @@
         </div>
 
         <!-- Lista de Correos -->
-        <div id="messageContents" class="space-y-4"></div>
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div class="flex items-center mb-4">
+                <input type="checkbox" id="selectAll" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                <label for="selectAll" class="ml-2 text-sm font-medium text-gray-900">Seleccionar todos</label>
+            </div>
+            <div id="messageContents" class="space-y-4"></div>
+        </div>
 
         <!-- Mensaje de No resultados -->
         <div id="noResultsMessage" class="text-center text-gray-500 hidden py-12">
@@ -106,6 +112,7 @@
   const deleteAllButton = document.getElementById("deleteAll");
   const paginationContainer = document.getElementById("pagination");
   const noResultsMessage = document.getElementById("noResultsMessage");
+  const selectAllCheckbox = document.getElementById("selectAll");
 
   let nextPageToken = "";
 
@@ -217,7 +224,21 @@
     }
   }
 
-  sendButton.addEventListener("click", () => fetchEmails());
+  function updateSelectAllCheckbox() {
+    const checkboxes = document.querySelectorAll(".message-checkbox");
+    const allChecked = Array.from(checkboxes).every((checkbox) => checkbox.checked);
+    selectAllCheckbox.checked = allChecked;
+  }
 
+  function handleSelectAllChange() {
+    const checkboxes = document.querySelectorAll(".message-checkbox");
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = selectAllCheckbox.checked;
+    });
+  }
+
+  selectAllCheckbox.addEventListener("change", handleSelectAllChange);
+
+  sendButton.addEventListener("click", () => fetchEmails());
 </script>
 {% endblock %}
