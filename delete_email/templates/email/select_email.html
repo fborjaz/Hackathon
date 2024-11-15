@@ -1,5 +1,22 @@
-{% extends 'layout/base.html' %}
-{% block content %}
+{% extends 'layout/base.html' %} {% block content %}
+<section class="bg-white p-6 rounded-lg shadow-lg mb-12" data-aos="fade-up">
+  <h2 class="text-2xl font-semibold text-gray-800 mb-4">Impacto ambiental</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-blue-50 p-4 rounded-lg">
+      <p class="text-lg font-medium text-gray-700">Correos eliminados:</p>
+      <p class="text-3xl font-bold text-blue-600">
+        <span id="deletedCount" class="float-animation">0</span>
+      </p>
+    </div>
+    <div class="bg-green-50 p-4 rounded-lg">
+      <p class="text-lg font-medium text-gray-700">CO₂ ahorrado:</p>
+      <p class="text-3xl font-bold text-green-600">
+        <span id="carbonSaved" class="float-animation">0</span> g
+      </p>
+    </div>
+  </div>
+</section>
+
 <div class="min-h-screen bg-gray-50 py-8">
   <div class="max-w-4xl mx-auto px-4">
     <!-- Header Section -->
@@ -9,29 +26,40 @@
           Filtrar Correos no Deseados
         </h1>
         <p class="text-gray-600">
-          Selecciona una categoría y antigüedad para ver y eliminar correos no deseados.
+          Selecciona una categoría y antigüedad para ver y eliminar correos no
+          deseados.
         </p>
       </div>
 
       <!-- Filter Controls -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div class="space-y-2">
-          <label for="selectCategory" class="block text-sm font-medium text-gray-700">
+          <label
+            for="selectCategory"
+            class="block text-sm font-medium text-gray-700"
+          >
             Selecciona una categoría:
           </label>
-          <select id="selectCategory" 
-                  class="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+          <select
+            id="selectCategory"
+            class="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          >
             <option value="promotions">Promociones</option>
             <option value="social">Redes Sociales</option>
           </select>
         </div>
 
         <div class="space-y-2">
-          <label for="selectAge" class="block text-sm font-medium text-gray-700">
+          <label
+            for="selectAge"
+            class="block text-sm font-medium text-gray-700"
+          >
             Selecciona antigüedad:
           </label>
-          <select id="selectAge" 
-                  class="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+          <select
+            id="selectAge"
+            class="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          >
             <option value="1d">1 día</option>
             <option value="1w">1 semana</option>
             <option value="1m">1 mes</option>
@@ -43,11 +71,22 @@
       </div>
 
       <!-- Search Button -->
-      <button id="send" 
-              class="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors flex items-center justify-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      <button
+        id="send"
+        class="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors flex items-center justify-center gap-2"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
         </svg>
         Buscar Correos
       </button>
@@ -58,8 +97,11 @@
       <!-- Select All Checkbox -->
       <div class="flex items-center justify-between mb-4 border-b pb-4">
         <div class="flex items-center">
-          <input type="checkbox" id="selectAll"
-                 class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"/>
+          <input
+            type="checkbox"
+            id="selectAll"
+            class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+          />
           <label for="selectAll" class="ml-2 text-sm font-medium text-gray-900">
             Seleccionar todos
           </label>
@@ -68,7 +110,7 @@
           Seleccionados: <span class="font-medium">0</span>
         </span>
       </div>
-      
+
       <!-- Messages Container -->
       <div id="messageContents" class="space-y-4"></div>
     </div>
@@ -76,28 +118,79 @@
     <!-- Status Messages -->
     <div id="loadingMessage" class="text-center text-gray-500 hidden py-12">
       <div class="flex justify-center items-center gap-2">
-        <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <svg
+          class="animate-spin h-5 w-5 text-blue-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
         </svg>
         <span>Cargando correos...</span>
       </div>
     </div>
 
     <div id="noResultsMessage" class="text-center text-gray-500 hidden py-12">
-      <p>No se encontraron correos para la categoría y antigüedad seleccionadas.</p>
+      <p>
+        No se encontraron correos para la categoría y antigüedad seleccionadas.
+      </p>
     </div>
 
     <!-- Error Message Section -->
-    <div id="errorMessage" class="hidden fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-96">
-      <div class="bg-red-500 text-white p-4 rounded-lg shadow-lg flex items-center space-x-3 transition-all transform opacity-0 scale-95" id="errorAlert">
-        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M12 9v6m0 9a9 9 0 100-18 9 9 0 000 18z"></path>
+    <div
+      id="errorMessage"
+      class="hidden fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-96"
+    >
+      <div
+        class="bg-red-500 text-white p-4 rounded-lg shadow-lg flex items-center space-x-3 transition-all transform opacity-0 scale-95"
+        id="errorAlert"
+      >
+        <svg
+          class="w-6 h-6"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 12h6M12 9v6m0 9a9 9 0 100-18 9 9 0 000 18z"
+          ></path>
         </svg>
-        <p id="errorText" class="flex-1 text-sm">Error al cargar los correos. Por favor, intenta de nuevo.</p>
-        <button onclick="closeAlert('errorMessage')" class="text-white focus:outline-none">
-          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+        <p id="errorText" class="flex-1 text-sm">
+          Error al cargar los correos. Por favor, intenta de nuevo.
+        </p>
+        <button
+          onclick="closeAlert('errorMessage')"
+          class="text-white focus:outline-none"
+        >
+          <svg
+            class="w-5 h-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
           </svg>
         </button>
       </div>
@@ -105,12 +198,23 @@
 
     <!-- Delete Button -->
     <div class="space-y-3 mt-6">
-      <button id="deleteSelected" 
-              class="w-full p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 transition-colors hidden flex items-center justify-center gap-2"
-              disabled>
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      <button
+        id="deleteSelected"
+        class="w-full p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 transition-colors hidden flex items-center justify-center gap-2"
+        disabled
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+          />
         </svg>
         Eliminar Seleccionados
       </button>
@@ -119,49 +223,98 @@
     <!-- Pagination -->
     <div id="pagination" class="mt-8 flex flex-col items-center space-y-4">
       <div class="flex items-center justify-center space-x-2">
-        <button id="firstPage" 
-                class="pagination-btn inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled>
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+        <button
+          id="firstPage"
+          class="pagination-btn inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled
+        >
+          <svg
+            class="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+            />
           </svg>
           Primero
         </button>
-        
-        <button id="prevPage" 
-                class="pagination-btn inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled>
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+
+        <button
+          id="prevPage"
+          class="pagination-btn inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled
+        >
+          <svg
+            class="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           Anterior
         </button>
-        
+
         <div id="pageNumbers" class="inline-flex items-center space-x-1">
           <!-- Page numbers will be inserted here dynamically -->
         </div>
 
-        <button id="nextPage" 
-                class="pagination-btn inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled>
+        <button
+          id="nextPage"
+          class="pagination-btn inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled
+        >
           Siguiente
-          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          <svg
+            class="w-5 h-5 ml-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </button>
-        
-        <button id="lastPage" 
-                class="pagination-btn inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled>
+
+        <button
+          id="lastPage"
+          class="pagination-btn inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled
+        >
           Último
-          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+          <svg
+            class="w-5 h-5 ml-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 5l7 7-7 7M5 5l7 7-7 7"
+            />
           </svg>
         </button>
       </div>
-      
+
       <div class="text-sm text-gray-700">
-        Mostrando página <span id="currentPageDisplay" class="font-medium">1</span> de 
+        Mostrando página
+        <span id="currentPageDisplay" class="font-medium">1</span> de
         <span id="totalPagesDisplay" class="font-medium">1</span>
       </div>
     </div>
@@ -188,7 +341,7 @@
   // Constants and Global Variables
   const csrftoken = getCookie("csrftoken");
   const ITEMS_PER_PAGE = 10;
-  
+
   // DOM Elements
   const sendButton = document.getElementById("send");
   const selectCategory = document.getElementById("selectCategory");
@@ -237,13 +390,16 @@
   }
 
   function updateDeleteButtonVisibility() {
-    const hasCheckedItems = document.querySelectorAll(".message-checkbox:checked").length > 0;
+    const hasCheckedItems =
+      document.querySelectorAll(".message-checkbox:checked").length > 0;
     deleteSelectedButton.classList.toggle("hidden", !hasCheckedItems);
     deleteSelectedButton.disabled = !hasCheckedItems;
   }
 
   function updateSelectedCount() {
-    const checkedCount = document.querySelectorAll(".message-checkbox:checked").length;
+    const checkedCount = document.querySelectorAll(
+      ".message-checkbox:checked"
+    ).length;
     selectedCountDisplay.querySelector("span").textContent = checkedCount;
     selectedCountDisplay.classList.toggle("hidden", checkedCount === 0);
   }
@@ -251,14 +407,15 @@
   // Message Functions
   function createMessageElement(msg) {
     const div = document.createElement("div");
-    div.className = "bg-white rounded-lg shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition-shadow";
-    
+    div.className =
+      "bg-white rounded-lg shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition-shadow";
+
     div.innerHTML = `
       <input type="checkbox" 
              class="message-checkbox w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
              value="${msg.id}">
       <div class="flex items-center flex-1 min-w-0">
-        <img src="${msg.profileImage || '/static/default-avatar.png'}" 
+        <img src="${msg.profileImage || "/static/default-avatar.png"}" 
              alt="Imagen de perfil"
              class="w-10 h-10 rounded-full object-cover">
         <div class="ml-4 flex-1 min-w-0">
@@ -281,35 +438,35 @@
   function updateUI(messages) {
     messageContainer.innerHTML = "";
     if (!messages || messages.length === 0) {
-        showNoResults(true);
-        totalPages = 1;
-        updatePagination();
+      showNoResults(true);
+      totalPages = 1;
+      updatePagination();
     } else {
-        showNoResults(false);
-        messages.forEach(msg => {
-            const messageElement = createMessageElement(msg);
-            messageContainer.appendChild(messageElement);
-        });
+      showNoResults(false);
+      messages.forEach((msg) => {
+        const messageElement = createMessageElement(msg);
+        messageContainer.appendChild(messageElement);
+      });
     }
-}
+  }
 
   // Pagination Functions
   function updatePagination() {
     const pageNumbers = document.getElementById("pageNumbers");
     pageNumbers.innerHTML = "";
-  
+
     currentPageDisplay.textContent = currentPage;
     totalPagesDisplay.textContent = totalPages;
-  
+
     // Calcular el rango visible de páginas
     const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-  
+
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-  
+
     // Crear los botones de página
     for (let i = startPage; i <= endPage; i++) {
       const pageButton = document.createElement("button");
@@ -327,12 +484,14 @@
       });
       pageNumbers.appendChild(pageButton);
     }
-  
+
     // Actualizar el estado de los botones de navegación
     document.getElementById("firstPage").disabled = currentPage === 1;
     document.getElementById("prevPage").disabled = currentPage === 1;
-    document.getElementById("nextPage").disabled = currentPage === totalPages || totalPages === 0;
-    document.getElementById("lastPage").disabled = currentPage === totalPages || totalPages === 0;
+    document.getElementById("nextPage").disabled =
+      currentPage === totalPages || totalPages === 0;
+    document.getElementById("lastPage").disabled =
+      currentPage === totalPages || totalPages === 0;
   }
 
   // Mostrar alerta
@@ -342,22 +501,22 @@
     errorText.textContent = message;
 
     // Aparecer la alerta con animación
-    errorMessageDiv.classList.remove('hidden');
+    errorMessageDiv.classList.remove("hidden");
     setTimeout(() => {
-      errorMessageDiv.classList.remove('opacity-0', 'scale-95');
-      errorMessageDiv.classList.add('opacity-100', 'scale-100');
+      errorMessageDiv.classList.remove("opacity-0", "scale-95");
+      errorMessageDiv.classList.add("opacity-100", "scale-100");
     }, 10);
   }
 
   // Cerrar alerta
   function closeAlert(alertId) {
     const alertDiv = document.getElementById(alertId);
-    alertDiv.classList.remove('opacity-100', 'scale-100');
-    alertDiv.classList.add('opacity-0', 'scale-95');
-    
+    alertDiv.classList.remove("opacity-100", "scale-100");
+    alertDiv.classList.add("opacity-0", "scale-95");
+
     setTimeout(() => {
-      alertDiv.classList.add('hidden');
-    }, 300);  // Tiempo de espera para la animación
+      alertDiv.classList.add("hidden");
+    }, 300); // Tiempo de espera para la animación
   }
 
   // Main Functions
@@ -365,51 +524,58 @@
     showLoading(true);
     showError(false);
     try {
-        const response = await fetch(`/api/email/?pageToken=${pageToken}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
-            },
-            body: JSON.stringify({
-                filter_messages: selectCategory.value,
-                age: selectAge.value,
-            }),
-        });
+      const response = await fetch(`/api/email/?pageToken=${pageToken}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify({
+          filter_messages: selectCategory.value,
+          age: selectAge.value,
+        }),
+      });
 
-        // Imprimir la respuesta en la consola para depuración
-        console.log("Respuesta de la API:", response);
+      // Imprimir la respuesta en la consola para depuración
+      console.log("Respuesta de la API:", response);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(`Error al cargar los correos: ${response.status} - ${errorData.error || "Error desconocido"}`);
-        }
-    
-        const data = await response.json();
-        currentPage = page;
-        totalPages = data.total_pages;
-        nextPageToken = data.next_page_token;
-    
-        updateUI(data.message_contents || []);
-        updatePagination();
-    
-      } catch (error) {
-        showErrorMessage(error.message);
-        console.error("Error:", error);
-      } finally {
-        showLoading(false);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `Error al cargar los correos: ${response.status} - ${
+            errorData.error || "Error desconocido"
+          }`
+        );
       }
+
+      const data = await response.json();
+      currentPage = page;
+      totalPages = data.total_pages;
+      nextPageToken = data.next_page_token;
+
+      updateUI(data.message_contents || []);
+      updatePagination();
+    } catch (error) {
+      showErrorMessage(error.message);
+      console.error("Error:", error);
+    } finally {
+      showLoading(false);
     }
+  }
 
   async function deleteSelectedEmails() {
     const checkedBoxes = document.querySelectorAll(".message-checkbox:checked");
-    const messageIds = Array.from(checkedBoxes).map(cb => cb.value);
+    const messageIds = Array.from(checkedBoxes).map((cb) => cb.value);
 
     if (!messageIds.length) return;
 
-    if (confirm("¿Estás seguro de que quieres eliminar los correos seleccionados?")) {
+    if (
+      confirm(
+        "¿Estás seguro de que quieres eliminar los correos seleccionados?"
+      )
+    ) {
       try {
-        const response = await fetch('/api/delete/', {
+        const response = await fetch("/api/delete/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -419,13 +585,19 @@
         });
 
         const data = await response.json();
-        
+        console.log("Respuesta de la API:", data);
+
         if (data.success) {
-          checkedBoxes.forEach(cb => cb.closest("div").remove());
+          const delete_count = document.getElementById("deletedCount");
+          delete_count.innerText = data.deleted_count;
+          const carbon_saved = document.getElementById("carbonSaved");
+          carbon_saved.innerText = data.carbon_saved;
+          // Eliminar los elementos de la interfaz
+          checkedBoxes.forEach((cb) => cb.closest("div").remove());
           updateDeleteButtonVisibility();
           updateSelectedCount();
           updateSelectAllCheckboxState();
-          
+
           if (messageContainer.children.length === 0) {
             fetchEmails("", currentPage);
           }
@@ -442,14 +614,16 @@
   function updateSelectAllCheckboxState() {
     const checkboxes = document.querySelectorAll(".message-checkbox");
     const checkedBoxes = document.querySelectorAll(".message-checkbox:checked");
-    selectAllCheckbox.checked = checkboxes.length > 0 && checkboxes.length === checkedBoxes.length;
-    selectAllCheckbox.indeterminate = checkedBoxes.length > 0 && checkboxes.length !== checkedBoxes.length;
+    selectAllCheckbox.checked =
+      checkboxes.length > 0 && checkboxes.length === checkedBoxes.length;
+    selectAllCheckbox.indeterminate =
+      checkedBoxes.length > 0 && checkboxes.length !== checkedBoxes.length;
   }
 
   // Event Listeners
   selectAllCheckbox.addEventListener("change", () => {
     const checkboxes = document.querySelectorAll(".message-checkbox");
-    checkboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+    checkboxes.forEach((cb) => (cb.checked = selectAllCheckbox.checked));
     updateDeleteButtonVisibility();
     updateSelectedCount();
   });
@@ -489,6 +663,5 @@
       fetchEmails("", totalPages);
     }
   });
-
 </script>
 {% endblock %}

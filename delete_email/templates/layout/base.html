@@ -1,69 +1,220 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Eliminar Correos No Deseados{% endblock %}</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon"> 
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
+    />
     <style>
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
         }
-        .float-animation {
-            animation: float 6s ease-in-out infinite;
+        50% {
+          transform: translateY(-20px);
         }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+      .float-animation {
+        animation: float 6s ease-in-out infinite;
+      }
+      .backdrop-blur {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
     </style>
-</head>
-<body class="bg-gradient-to-r from-blue-100 to-green-100">
-
-    <header>
+  </head>
+  <body class="bg-gradient-to-r from-blue-100 to-green-100">
+    <header
+      class="fixed top-0 left-0 right-0 bg-white bg-opacity-20 backdrop-blur shadow-lg z-50 transition-all duration-300"
+    >
+      <div class="container mx-auto p-4 flex justify-between items-center">
+        <div class="flex items-center">
+          <img
+            src="{% static 'img/email-ico.webp' %}"
+            alt="Icono de correo"
+            class="w-16 h-16 mr-4"
+          />
+          <h1 class="text-2xl font-bold text-gray-800">Eco Email</h1>
+        </div>
+        <div>
+          <a
+            href="http://127.0.0.1:8000/api/"
+            class="bg-blue-600 bg-opacity-80 hover:bg-opacity-100 text-white py-2 px-4 rounded-full transition-all duration-300 hover:scale-110"
+          >
+            Home
+          </a>
+          <button
+            id="scrollToAction"
+            class="bg-blue-600 bg-opacity-80 hover:bg-opacity-100 text-white py-2 px-4 rounded-full transition-all duration-300 hover:scale-110"
+          >
+            Actúa Ahora
+          </button>
+        </div>
+      </div>
     </header>
 
-    <main>
-        <div class="container mx-auto p-6">
-            <section class="text-center mb-12" data-aos="fade-up">
-                <h1 class="text-4xl font-bold text-gray-800 mb-4">Reduce tu huella de carbono eliminando correos no deseados</h1>
-                <p class="text-lg text-gray-600 mb-4">Sabías que cada correo electrónico no deseado que permanece en tu bandeja de entrada contribuye al daño ambiental? ¡Es hora de actuar!</p>
-            </section>
+    <main class="pt-20">
+      <div class="container mx-auto p-6">
+        <section class="text-center mb-12" data-aos="fade-up">
+          <h1 class="text-4xl font-bold text-gray-800 mb-4">
+            Reduce tu huella de carbono eliminando correos no deseados
+          </h1>
+          <p class="text-xl text-gray-600 mb-4">
+            Sabías que cada correo electrónico no deseado que permanece en tu
+            bandeja de entrada contribuye al daño ambiental? ¡Es hora de actuar!
+          </p>
+        </section>
 
-            <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                <div class="bg-blue-50 p-6 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105" data-aos="fade-right">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">¿Cómo afecta tu bandeja de entrada al medio ambiente?</h2>
-                    <p class="text-gray-700">El almacenamiento de correos electrónicos en servidores de datos requiere energía, y los centros de datos que almacenan estos correos emiten grandes cantidades de dióxido de carbono (CO₂). Mantener solo correos importantes y eliminar los no deseados puede reducir significativamente estas emisiones.</p>
-                    <img src="https://media.gq.com.mx/photos/5cf80069d09b9acf1616989e/master/pass/Jan-19-Estrin-DigitalPollution.jpg" alt="Icono de servidor" class="mt-4 mx-auto">
-                </div>
-                <div class="bg-green-50 p-6 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105" data-aos="fade-left">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">El impacto de la eliminación de correos no deseados</h2>
-                    <p class="text-gray-700">Eliminar regularmente los correos electrónicos de categorías como promociones y redes sociales ayuda a disminuir el uso de energía de los servidores y reduce la huella de carbono de tus actividades digitales. Cada correo eliminado es un paso hacia un futuro más sostenible.</p>
-                    <img src="https://cdn-icons-png.freepik.com/512/8914/8914636.png" alt="Icono de huella de carbono" class="mt-4 mx-auto">
-                </div>
-            </section>
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <div
+            class="bg-blue-50 p-6 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
+            data-aos="fade-right"
+          >
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+              ¿Cómo afecta tu bandeja de entrada al medio ambiente?
+            </h2>
+            <p class="text-lg text-gray-700">
+              El almacenamiento de correos electrónicos en servidores de datos
+              requiere energía, y los centros de datos que almacenan estos
+              correos emiten grandes cantidades de dióxido de carbono (CO₂).
+              Mantener solo correos importantes y eliminar los no deseados puede
+              reducir significativamente estas emisiones.
+            </p>
+            <p class="text-lg text-gray-700">
+              Sabías que un correo electrónico puede generar hasta 50 gramos de
+              CO2? ¡Eso equivale a dejar una bombilla encendida durante 24
+              horas!
+            </p>
+            <p class="text-lg text-gray-700">
+              Además, el sector TIC produce el 5% de las emisiones mundiales de
+              gases de efecto invernadero, más que sectores como el naviero o el
+              de la aviación.
+            </p>
+            <img
+              src="https://media.gq.com.mx/photos/5cf80069d09b9acf1616989e/master/pass/Jan-19-Estrin-DigitalPollution.jpg"
+              alt="Icono de servidor"
+              class="mt-4 mx-auto w-64 h-64 object-cover"
+            />
+          </div>
+          <div
+            class="bg-green-50 p-6 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
+            data-aos="fade-left"
+          >
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+              El impacto de la eliminación de correos no deseados
+            </h2>
+            <p class="text-lg text-gray-700">
+              Eliminar regularmente los correos electrónicos de categorías como
+              promociones y redes sociales ayuda a disminuir el uso de energía
+              de los servidores y reduce la huella de carbono de tus actividades
+              digitales. Cada correo eliminado es un paso hacia un futuro más
+              sostenible.
+            </p>
+            <ul class="text-lg text-gray-700 list-disc list-inside">
+              <li>
+                Eliminar 30 correos electrónicos puede ahorrar la energía
+                equivalente a la necesaria para hervir una tetera.
+              </li>
+              <li>
+                Si cada persona en el Reino Unido eliminara 10 correos
+                electrónicos, se ahorraría la misma cantidad de CO2 que
+                emitirían 81,152 vuelos de Londres a Madrid.
+              </li>
+            </ul>
+            <img
+              src="https://cdn-icons-png.freepik.com/512/8914/8914636.png"
+              alt="Icono de huella de carbono"
+              class="mt-4 mx-auto w-64 h-64 object-contain"
+            />
+          </div>
+        </section>
 
-            <section class="text-center mb-12" data-aos="zoom-in">
-                <h2 class="text-3xl font-semibold text-gray-800 mb-4">¡Tu acción cuenta!</h2>
-                <p class="text-lg text-gray-600 mb-4">Empieza a limpiar tu bandeja de entrada y contribuye a la lucha contra el cambio climático. ¡Un correo a la vez!</p>
-                <!-- El botón redirige a la ruta que maneja la funcionalidad de la app -->
-                <a href="{% url 'select_email' %}" class="text-white bg-blue-600 hover:bg-blue-700 py-2 px-6 rounded-full transition-transform duration-300 hover:scale-110 inline-block">Comienza Ahora</a>
-            </section>
+        <section class="mb-12 flex justify-center" data-aos="fade-up">
+          <div
+            class="bg-white p-6 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 w-full max-w-3xl"
+          >
+            <iframe
+              width="100%"
+              height="315"
+              src="https://www.youtube.com/embed/ZXZF_n6cg30?si=LETXjhm7Yv3gR1fo"
+              title="YouTube video player"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+              class="mb-4"
+            ></iframe>
+          </div>
+        </section>
 
-            {% block content %}
-            {% endblock %}
+        <section class="text-center mb-12 pyramid-structure" data-aos="zoom-in">
+          <h2 class="text-3xl font-semibold text-gray-800 mb-4">
+            ¡Tu acción cuenta!
+          </h2>
+          <p class="text-xl text-gray-600 mb-4">
+            Empieza a limpiar tu bandeja de entrada y contribuye a la lucha
+            contra el cambio climático. ¡Un correo a la vez!
+          </p>
+          <a
+            href="{% url 'select_email' %}"
+            id="comenzarBtn"
+            class="text-white bg-blue-600 hover:bg-blue-700 py-2 px-6 rounded-full transition-transform duration-300 hover:scale-110 inline-block mt-4"
+            >Comienza Ahora</a
+          >
+        </section>
+
+
+        <div id="contentBlock" class="hidden">
+          {% block content %} {% endblock %}
         </div>
+      </div>
     </main>
 
-    <footer>
-    </footer>
+    <footer></footer>
 
     <script>
-        AOS.init({
-            duration: 1000,
-            once: true,
+      AOS.init({
+        duration: 1000,
+        once: true,
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const comenzarBtn = document.getElementById("comenzarBtn");
+        const contentBlock = document.getElementById("contentBlock");
+        const scrollToActionBtn = document.getElementById("scrollToAction");
+        const header = document.querySelector("header");
+
+        comenzarBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          contentBlock.classList.remove("hidden");
+          contentBlock.scrollIntoView({ behavior: "smooth" });
         });
+
+        scrollToActionBtn.addEventListener("click", function () {
+          comenzarBtn.scrollIntoView({ behavior: "smooth" });
+        });
+
+        // Cambiar la opacidad del header al hacer scroll
+        window.addEventListener("scroll", function () {
+          if (window.scrollY > 50) {
+            header.classList.add("bg-opacity-80");
+            header.classList.remove("bg-opacity-20");
+          } else {
+            header.classList.add("bg-opacity-20");
+            header.classList.remove("bg-opacity-80");
+          }
+        });
+      });
     </script>
-</body>
+  </body>
 </html>

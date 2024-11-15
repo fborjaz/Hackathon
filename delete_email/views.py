@@ -24,7 +24,29 @@ SCOPES = ["https://mail.google.com/", "https://www.googleapis.com/auth/contacts.
 # Vista para mostrar la página principal con la información de la huella de carbono
 class HomePageView(View):
     def get(self, request, *args, **kwargs):
-        return render(request, 'layout/base.html')
+        user_email = request.user.email if request.user.is_authenticated else None
+        context = {}
+
+        if user_email:
+            try:
+                # Buscar el perfil del usuario
+                user_profile = UserProfile.objects.get(email=user_email)
+                # Verificar los valores que vamos a pasar al contexto
+                logger.info(f"Deleted emails: {user_profile.deleted_emails_count}, Carbon saved: {user_profile.carbon_saved}")
+                context = {
+                    'deleted_emails_count': user_profile.deleted_emails_count,
+                    'carbon_saved': user_profile.carbon_saved,
+                }
+            except UserProfile.DoesNotExist:
+                logger.info("No profile found for user, using defaults.")
+                context = {
+                    'deleted_emails_count': 0,
+                    'carbon_saved': 0.0,
+                }
+
+        return render(request, 'layout/base.html', context)
+
+
 
 # Función para autenticar y construir el servicio de Gmail
 def get_gmail_service():
@@ -178,12 +200,20 @@ class DeleteEmailsView(View):
             ).execute()
 
             # Actualizar el contador de correos eliminados
-            user_profile.deleted_emails_count += len(message_ids)
+            deleted_count = len(message_ids)
+            carbon_saved = deleted_count * 0.3  # 0.3 gramos por correo
+
+            user_profile.deleted_emails_count += deleted_count
+            user_profile.carbon_saved += carbon_saved
             user_profile.save()
 
-            logger.info(f"{len(message_ids)} correos eliminados para {user_email}. Total acumulado: {user_profile.deleted_emails_count}")
+            logger.info(f"{deleted_count} correos eliminados para {user_email}. Total acumulado: {user_profile.deleted_emails_count}, CO₂ ahorrado: {user_profile.carbon_saved:.2f} g")
 
-            return JsonResponse({'success': True, 'deleted_count': user_profile.deleted_emails_count})
+            return JsonResponse({
+                'success': True, 
+                'deleted_count': user_profile.deleted_emails_count,
+                'carbon_saved': user_profile.carbon_saved
+            })
 
         except HttpError as error:
             logger.error(f"Error al eliminar los correos electrónicos: {error.status_code} - {error.content}")
