@@ -1,0 +1,44 @@
+.filters{
+    display: flex;
+    gap: 2em;
+}
+
+.hero{
+    margin-top: 3em;
+    margin-bottom: 3em;
+}
+
+.filter{
+    display: flex;
+    gap: 0.6em;
+    align-items: center;
+}
+
+.card{
+    border: solid 0.1em #575757;
+    border-radius: 0.5em;
+    padding: 0 1em;
+}
+
+.card h4{
+    margin-top: 0.3em;
+    color: #3D74EA;
+    margin-bottom: -0.2em;
+}
+
+.card p{
+    color: #6D6B6B;
+}
+.text{
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+.images{
+    width: 35em;
+}
+
+.diagrams{
+    margin-top: 3em;
+    margin-bottom: 3em;
+}

@@ -1,0 +1,29 @@
+<!doctype html>
+{% load static %}
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link href="{% static 'styles/normalize.css' %}" rel="stylesheet" />
+    <link href="{% static 'styles/skeleton.css' %}" rel="stylesheet" />
+    <link href="{% static 'styles/index.css' %}" rel="stylesheet" />
+    <script src="https://unpkg.com/scrollreveal"></script>
+    {% block styles %}{% endblock %}
+    <title>CarCo2</title>
+  </head>
+  <body>
+    {% block top %} {% endblock %}
+    <div class="container">
+      <nav class="nav-bar">
+        <ul class="nav-list">
+          <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="/view">CarCo2</a></li>
+          <li class="nav-item"><a class="nav-link" href="">EmailDelate</a></li>
+        </ul>
+      </nav>
+    </div>
+    {% block content %}{% endblock %}
+    <!------------------->
+    {% block bottomp %}{% endblock %}
+  </body>
+  {% block scripts %}{% endblock %}
+</html>

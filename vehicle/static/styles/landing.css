@@ -1,0 +1,47 @@
+.about {
+    margin-top: 8em;
+}
+
+.autoAnimation {
+    margin-bottom: 5em;
+}
+
+.hero {
+    margin-top: 2em;
+    display: flex;
+    justify-content: center;
+}
+.space {
+    opacity: 0;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 3.5em;
+}
+
+.avatar {
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    width: 11em;
+    height: 11em;
+    background-color: rgb(41, 41, 41);
+    border-radius: 100%;
+}
+
+.card-body {
+    color: black;
+    margin-top: 0.8em;
+}
+
+.card-body span {
+    color: rgb(103, 103, 103);
+}
+
+.wave-1 {
+    z-index: 99;
+    margin-bottom: -5em;
+}
