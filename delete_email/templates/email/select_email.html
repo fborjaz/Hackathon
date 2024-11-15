@@ -88,20 +88,18 @@
       <p>No se encontraron correos para la categoría y antigüedad seleccionadas.</p>
     </div>
 
-    <div id="errorMessage" class="hidden">
-      <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm text-red-700">
-              Error al cargar los correos. Por favor, intenta de nuevo.
-            </p>
-          </div>
-        </div>
+    <!-- Error Message Section -->
+    <div id="errorMessage" class="hidden fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-96">
+      <div class="bg-red-500 text-white p-4 rounded-lg shadow-lg flex items-center space-x-3 transition-all transform opacity-0 scale-95" id="errorAlert">
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M12 9v6m0 9a9 9 0 100-18 9 9 0 000 18z"></path>
+        </svg>
+        <p id="errorText" class="flex-1 text-sm">Error al cargar los correos. Por favor, intenta de nuevo.</p>
+        <button onclick="closeAlert('errorMessage')" class="text-white focus:outline-none">
+          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -337,6 +335,31 @@
     document.getElementById("lastPage").disabled = currentPage === totalPages || totalPages === 0;
   }
 
+  // Mostrar alerta
+  function showErrorMessage(message) {
+    const errorMessageDiv = document.getElementById("errorMessage");
+    const errorText = document.getElementById("errorText");
+    errorText.textContent = message;
+
+    // Aparecer la alerta con animación
+    errorMessageDiv.classList.remove('hidden');
+    setTimeout(() => {
+      errorMessageDiv.classList.remove('opacity-0', 'scale-95');
+      errorMessageDiv.classList.add('opacity-100', 'scale-100');
+    }, 10);
+  }
+
+  // Cerrar alerta
+  function closeAlert(alertId) {
+    const alertDiv = document.getElementById(alertId);
+    alertDiv.classList.remove('opacity-100', 'scale-100');
+    alertDiv.classList.add('opacity-0', 'scale-95');
+    
+    setTimeout(() => {
+      alertDiv.classList.add('hidden');
+    }, 300);  // Tiempo de espera para la animación
+  }
+
   // Main Functions
   async function fetchEmails(pageToken = "", page = 1) {
     showLoading(true);
@@ -358,31 +381,25 @@
         console.log("Respuesta de la API:", response);
 
         if (!response.ok) {
-            // Si la respuesta indica un error, obtener el mensaje de error
-            const errorData = await response.json();
-            console.error("Error en la respuesta:", errorData);
-            throw new Error(`Error al cargar los correos: ${response.status} - ${errorData.error || "Error desconocido"}`);
+          const errorData = await response.json();
+          throw new Error(`Error al cargar los correos: ${response.status} - ${errorData.error || "Error desconocido"}`);
         }
-
+    
         const data = await response.json();
-
         currentPage = page;
         totalPages = data.total_pages;
         nextPageToken = data.next_page_token;
-
-        // Verificar si data.message_contents está definido antes de actualizar la interfaz
-        updateUI(data.message_contents || []); // Pasa un arreglo vacío si data.message_contents es undefined
+    
+        updateUI(data.message_contents || []);
         updatePagination();
-
-    } catch (error) {
-        console.error("Error al obtener los correos:", error);
-        showError(true);
-        // Mostrar un mensaje de error más informativo al usuario
-        errorMessage.querySelector("p").textContent = `Error al cargar los correos: ${error.message}`;
-    } finally {
+    
+      } catch (error) {
+        showErrorMessage(error.message);
+        console.error("Error:", error);
+      } finally {
         showLoading(false);
+      }
     }
-}
 
   async function deleteSelectedEmails() {
     const checkedBoxes = document.querySelectorAll(".message-checkbox:checked");
