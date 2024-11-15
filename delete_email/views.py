@@ -11,6 +11,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from .models import UserProfile
 
 # Configurar el logger
 logging.basicConfig(level=logging.INFO)
@@ -37,6 +38,18 @@ def get_gmail_service():
 
     return build("gmail", "v1", credentials=creds)
 
+# Función para obtener el email del perfil de usuario
+def get_user_email(service):
+    try:
+        # Llamada a la API de Gmail para obtener el perfil de usuario
+        profile = service.users().getProfile(userId='me').execute()
+        # Obtener la dirección de correo electrónico del perfil
+        email_address = profile.get('emailAddress')
+        return email_address
+    except HttpError as error:
+        logger.error(f"Error al obtener el perfil de usuario: {error}")
+        return None
+
 @method_decorator(csrf_exempt, name="dispatch")
 class EmailSelectionView(View):
     def get(self, request, *args, **kwargs):
@@ -49,6 +62,18 @@ class EmailSelectionView(View):
 
         try:
             service = get_gmail_service()
+            # Obtener el email del usuario
+            user_email = get_user_email(service)
+            if not user_email:
+                return JsonResponse({'error': 'No se pudo obtener el correo del usuario'}, status=500)
+
+            # Guardar el email en la base de datos si no existe
+            user_profile, created = UserProfile.objects.get_or_create(email=user_email)
+            if created:
+                logger.info(f"Nuevo perfil de usuario creado para {user_email}")
+            else:
+                logger.info(f"El perfil de usuario para {user_email} ya existe")
+
             people_service = build("people", "v1", credentials=service._http.credentials)
 
             message_contents = []
@@ -85,7 +110,12 @@ class EmailSelectionView(View):
             total_messages = results.get('resultSizeEstimate', 0)
             total_pages = (total_messages + 9) // 10  # Redondear hacia arriba
 
-            return JsonResponse({'message_contents': message_contents, 'next_page_token': next_page_token, 'total_pages': total_pages})
+            return JsonResponse({
+                'message_contents': message_contents, 
+                'next_page_token': next_page_token, 
+                'total_pages': total_pages,
+                'user_email': user_email
+            })
 
         except HttpError as error:
             logger.error(f"Error al obtener los correos electrónicos: {error.status_code} - {error.content}")
