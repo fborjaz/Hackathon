@@ -1,0 +1,85 @@
+{% extends 'index.html' %}
+
+<!------------>
+{% load static %} {% block styles %}
+<link href="{% static "styles/revision.css" %}" rel="stylesheet" />
+{% endblock %}
+<!----------------->
+{% block content %}
+    <div class="container">
+        <div class="hero">
+            <h1>Visualizacion General</h1>
+            <div class="filters row">
+                <div class="filter">
+                    <label for="">Marca</label>
+                    <select id="">
+                        <option value="" class="u-full-width">Toyotta:Corolla</option>
+                        <option value="" class="u-full-width">Ford: Focus</option>
+                        <option value="" class="u-full-width">Volkswage: Road</option>
+                        <option value="" class="u-full-width">Ford: Real</option>
+                        <option value="" class="u-full-width">Chevrolet: Camaro</option>
+                    </select>
+                </div>
+                <div class="filter">
+                    <label for="">Clase</label>
+                    <select id="">
+                        <option value="" class="u-full-width">Toyotta:Corolla</option>
+                        <option value="" class="u-full-width">Ford: Focus</option>
+                        <option value="" class="u-full-width">Volkswage: Road</option>
+                        <option value="" class="u-full-width">Ford: Real</option>
+                        <option value="" class="u-full-width">Chevrolet: Camaro</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="cards">
+            <div class="row">
+                <div class="card three columns">
+                    <h4>15.2</h4>
+                    <p>Promedio de Co2</p>
+                </div>
+                <div class="card three columns">
+                    <h4>3</h4>
+                    <p>Total de vehiculos</p>
+                </div>
+                <div class="card three columns">
+                    <h4>81%</h4>
+                    <p>Eficiencia Promedio</p>
+                </div>
+                <div class="card three columns">
+                    <h4>6.4</h4>
+                    <p>Consumo Promedio</p>
+                </div>
+            </div>
+            <div class="text row">
+                <h6>Comparacion de consumo de combustible, emisores y caracteristicas de diferentes
+                    modelos.</h6>
+            </div>
+            <div class="row diagrams">
+                <div class="seven columns">
+                    <img class="images" src="{% static "img/motores.jpeg" %}" alt="Diagrama relacion motores">
+                </div>
+                <div class="five columns">
+                    <label>Modelo Seleccionado: <span>SparcoA</span></label>
+                    <label>Consumo en ciudades:<span>Hola</span></label>
+                    <label>Consumo en carreteras:<span>xd</span></label>
+                    <label>Emisiones de Co2:<span>wey</span></label>
+                    <label>Tamaño del motor:<span>ss</span><label>
+                </div>
+            </div>
+            <div class="row diagrams">
+                <div class="six columns">
+                    <h3>Comparador de emisiones</h3>
+                    <img class="images" src="{% static "img/barras.jpeg" %}" alt="Diagrama relacion motores">
+                </div>
+                <div class="six columns">
+                    <h3>Consumo de combustible</h3>
+                    <img class="images" src="{% static "img/consumo.jpeg" %}" alt="Diagrama Pastel">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static "scripts/revision.js" %}"></script>
+{% endblock %}

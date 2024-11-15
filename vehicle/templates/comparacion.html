@@ -1,0 +1,107 @@
+{% extends 'index.html' %}
+
+<!------------>
+{% load static %} {% block styles %}
+<link href="{% static "styles/comparacion.css" %}" rel="stylesheet" />
+{% endblock %}
+<!----------------->
+{% block content %}
+    <div class="container">
+        <div class="hero row">
+            <h2 class="six">Comparacion:</h2>
+            <div class="seleccion">
+                <select name="" id="">
+                    <option value="">Carro 1</option>
+                    <option value="">Carro 1</option>
+                    <option value="">Carro 1</option>
+                    <option value="">Carro 1</option>
+                </select>
+            </div>
+            <span>Vs</span>
+            <div class="seleccion">
+                <select name="" id="">
+                    <option value="">Carro 1</option>
+                    <option value="">Carro 1</option>
+                    <option value="">Carro 1</option>
+                    <option value="">Carro 1</option>
+                </select>
+            </div>
+        </div>
+        <div class="Cards row">
+            <div class="card six columns">
+                <div class="card-head">
+                    <h3>Toyotta</h3>
+                    <p>Corolla</p>
+                </div>
+                <div class="card-body">
+                    <label for="">Modelo seleccionado:<span>SedanA</span></label>
+                    <label for="">Consumo en ciudades:<span>8.5L/10</span></label>
+                    <label for="">Consumo en carreteras:<span>6.2L/100km</span></label>
+                    <label for="">Emiciones de co2:<span>120 g/km</span></label>
+                    <label for="">Tamño del motor:<span>1.6L</span></label>
+                </div>
+            </div>
+            <div class="card six columns">
+                <div class="card-head">
+                    <h3>Ford</h3>
+                    <p>Focus</p>
+                </div>
+                <div class="card-body">
+                    <label for="">Modelo seleccionado:<span>SedanA</span></label>
+                    <label for="">Consumo en ciudades:<span>8.5L/10</span></label>
+                    <label for="">Consumo en carreteras:<span>6.2L/100km</span></label>
+                    <label for="">Emiciones de co2:<span>120 g/km</span></label>
+                    <label for="">Tamño del motor:<span>1.6L</span></label>
+                </div>
+            </div>
+        </div>
+        <div class="sec-diagrams">
+            <div class="diagrams1">
+                <div class="diagram">
+                    <h4>Motores</h4>
+                    <img src="{% static "img/motores.jpeg" %}" alt="">
+                </div>
+                <div class="diagram">
+                    <h4>Combustible</h4>
+                    <img src="{% static "img/consumo.jpeg" %}" alt="">
+                </div>
+
+            </div>
+            <div class="diagram2">
+                <div class="diagram">
+                    <h4>Emisiones Co2</h4>
+                    <img src="{% static "img/barras.jpeg"%}" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="sec-rev">
+            <h2>Revision de Co2</h2>
+            <p>Linea de tiempo</p>
+            <div class="rev row">
+                <div class="rev-con eleven colums">
+                    <div class="rev-head">
+                        <h4>Toyotta</h4>
+                        <p>Corolla</p>
+                    </div>
+                    <div class="rev-body">
+                        <img src="{% static "img/linea-tiempo.jpeg" %}" alt="de año">
+                    </div>
+                </div>
+            </div>
+            <div class="rev row">
+                <div class="rev-con eleven colums">
+                    <div class="rev-head">
+                        <h4>Ford</h4>
+                        <p>Focus</p>
+                    </div>
+                    <div class="rev-body">
+                        <img src="{% static "img/linea-tiempo.jpeg"%}" alt="de año">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static "scripts/comparacion.js" %}"></script>
+{% endblock %}
