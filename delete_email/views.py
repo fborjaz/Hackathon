@@ -77,6 +77,8 @@ class EmailSelectionView(View):
             people_service = build("people", "v1", credentials=service._http.credentials)
 
             message_contents = []
+            found_messages = False
+
             for category in ["promotions", "social"]:
                 results = service.users().messages().list(
                     userId="me", 
@@ -86,29 +88,33 @@ class EmailSelectionView(View):
                 ).execute()
                 messages = results.get("messages", [])
 
-                if not messages:
-                    return JsonResponse({'message': 'No messages found.'})
+                if messages:
+                    found_messages = True  # Marcar que se encontraron mensajes
 
-                for message in messages:
-                    msg = service.users().messages().get(userId="me", id=message['id']).execute()
+                    for message in messages:
+                        msg = service.users().messages().get(userId="me", id=message['id']).execute()
 
-                    headers = msg.get("payload", {}).get("headers", [])
-                    sender = next((header["value"] for header in headers if header["name"] == "From"), "Remitente desconocido")
-                    subject = next((header["value"] for header in headers if header["name"] == "Subject"), "Sin asunto")
+                        headers = msg.get("payload", {}).get("headers", [])
+                        sender = next((header["value"] for header in headers if header["name"] == "From"), "Remitente desconocido")
+                        subject = next((header["value"] for header in headers if header["name"] == "Subject"), "Sin asunto")
 
-                    sender_email = sender.split('<')[-1].split('>')[0] if '<' in sender else sender
-                    profile_image_url = self.get_profile_image(people_service, sender_email)
+                        sender_email = sender.split('<')[-1].split('>')[0] if '<' in sender else sender
+                        profile_image_url = self.get_profile_image(people_service, sender_email)
 
-                    message_contents.append({
-                        'id': message['id'],
-                        'sender': sender,
-                        'subject': subject,
-                        'profileImage': profile_image_url,
-                    })
+                        message_contents.append({
+                            'id': message['id'],
+                            'sender': sender,
+                            'subject': subject,
+                            'profileImage': profile_image_url,
+                        })
+
+            # Si no se encontraron mensajes en ninguna categoría, devolver mensaje adecuado
+            if not found_messages:
+                return JsonResponse({'message': 'No tiene correos con la antigüedad especificada.'})
 
             next_page_token = results.get('nextPageToken')
             total_messages = results.get('resultSizeEstimate', 0)
-            total_pages = (total_messages + 9) // 10  # Redondear hacia arriba
+            total_pages = (total_messages + 9) // 10
 
             return JsonResponse({
                 'message_contents': message_contents, 
@@ -147,6 +153,14 @@ class DeleteEmailsView(View):
 
         try:
             service = get_gmail_service()
+            
+            # Obtener el email del usuario
+            user_email = get_user_email(service)
+            if not user_email:
+                return JsonResponse({'error': 'No se pudo obtener el correo del usuario'}, status=500)
+            
+            # Buscar el perfil del usuario en la base de datos
+            user_profile, created = UserProfile.objects.get_or_create(email=user_email)
 
             # Eliminar los correos electrónicos en lotes
             service.users().messages().batchDelete(
@@ -156,7 +170,13 @@ class DeleteEmailsView(View):
                 }
             ).execute()
 
-            return JsonResponse({'success': True})
+            # Actualizar el contador de correos eliminados
+            user_profile.deleted_emails_count += len(message_ids)
+            user_profile.save()
+
+            logger.info(f"{len(message_ids)} correos eliminados para {user_email}. Total acumulado: {user_profile.deleted_emails_count}")
+
+            return JsonResponse({'success': True, 'deleted_count': user_profile.deleted_emails_count})
 
         except HttpError as error:
             logger.error(f"Error al eliminar los correos electrónicos: {error.status_code} - {error.content}")

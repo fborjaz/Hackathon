@@ -1,8 +1,9 @@
 from django.db import models
 
 class UserProfile(models.Model):
-    email = models.EmailField(unique=True)  # Campo para almacenar el correo electrónico
-    created_at = models.DateTimeField(auto_now_add=True)  # Fecha de creación
+    email = models.EmailField(unique=True)
+    deleted_emails_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.email
+        return f"{self.email} - {self.deleted_emails_count} emails eliminados"
