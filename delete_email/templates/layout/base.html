@@ -1,24 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}Eliminar Correos No Deseados{% endblock %}</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon"> 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gradient-to-r from-blue-100 to-green-100">
 
     <header>
-        </header>
+    </header>
 
     <main>
-        {% block content %}
-        {% endblock %}
+        <div class="container mx-auto p-6">
+            <section class="text-center mb-12" data-aos="fade-up">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">Reduce tu huella de carbono eliminando correos no deseados</h1>
+                <p class="text-lg text-gray-600 mb-4">Sabías que cada correo electrónico no deseado que permanece en tu bandeja de entrada contribuye al daño ambiental? ¡Es hora de actuar!</p>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="bg-blue-50 p-6 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105" data-aos="fade-right">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">¿Cómo afecta tu bandeja de entrada al medio ambiente?</h2>
+                    <p class="text-gray-700">El almacenamiento de correos electrónicos en servidores de datos requiere energía, y los centros de datos que almacenan estos correos emiten grandes cantidades de dióxido de carbono (CO₂). Mantener solo correos importantes y eliminar los no deseados puede reducir significativamente estas emisiones.</p>
+                    <img src="https://media.gq.com.mx/photos/5cf80069d09b9acf1616989e/master/pass/Jan-19-Estrin-DigitalPollution.jpg" alt="Icono de servidor" class="mt-4 mx-auto">
+                </div>
+                <div class="bg-green-50 p-6 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105" data-aos="fade-left">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">El impacto de la eliminación de correos no deseados</h2>
+                    <p class="text-gray-700">Eliminar regularmente los correos electrónicos de categorías como promociones y redes sociales ayuda a disminuir el uso de energía de los servidores y reduce la huella de carbono de tus actividades digitales. Cada correo eliminado es un paso hacia un futuro más sostenible.</p>
+                    <img src="https://cdn-icons-png.freepik.com/512/8914/8914636.png" alt="Icono de huella de carbono" class="mt-4 mx-auto">
+                </div>
+            </section>
+
+            <section class="text-center mb-12" data-aos="zoom-in">
+                <h2 class="text-3xl font-semibold text-gray-800 mb-4">¡Tu acción cuenta!</h2>
+                <p class="text-lg text-gray-600 mb-4">Empieza a limpiar tu bandeja de entrada y contribuye a la lucha contra el cambio climático. ¡Un correo a la vez!</p>
+                <!-- El botón redirige a la ruta que maneja la funcionalidad de la app -->
+                <a href="{% url 'select_email' %}" class="text-white bg-blue-600 hover:bg-blue-700 py-2 px-6 rounded-full transition-transform duration-300 hover:scale-110 inline-block">Comienza Ahora</a>
+            </section>
+
+            {% block content %}
+            {% endblock %}
+        </div>
     </main>
 
     <footer>
-        </footer>
+    </footer>
 
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true,
+        });
+    </script>
 </body>
 </html>

@@ -21,6 +21,11 @@ logger = logging.getLogger(__name__)
 SCOPES = ["https://mail.google.com/", "https://www.googleapis.com/auth/contacts.readonly"]
 
 
+# Vista para mostrar la página principal con la información de la huella de carbono
+class HomePageView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'layout/base.html')
+
 # Función para autenticar y construir el servicio de Gmail
 def get_gmail_service():
     creds = None
