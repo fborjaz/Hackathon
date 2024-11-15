@@ -78,6 +78,8 @@ class EmailSelectionView(View):
 
             message_contents = []
             found_messages = False
+            next_page_token = None
+            total_messages = 0
 
             for category in ["promotions", "social"]:
                 results = service.users().messages().list(
@@ -89,7 +91,9 @@ class EmailSelectionView(View):
                 messages = results.get("messages", [])
 
                 if messages:
-                    found_messages = True  # Marcar que se encontraron mensajes
+                    found_messages = True
+                    next_page_token = results.get('nextPageToken')
+                    total_messages += results.get('resultSizeEstimate', 0)
 
                     for message in messages:
                         msg = service.users().messages().get(userId="me", id=message['id']).execute()
@@ -112,8 +116,6 @@ class EmailSelectionView(View):
             if not found_messages:
                 return JsonResponse({'message': 'No tiene correos con la antigüedad especificada.'})
 
-            next_page_token = results.get('nextPageToken')
-            total_messages = results.get('resultSizeEstimate', 0)
             total_pages = (total_messages + 9) // 10
 
             return JsonResponse({

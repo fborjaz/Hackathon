@@ -282,35 +282,37 @@
 
   function updateUI(messages) {
     messageContainer.innerHTML = "";
-    if (messages.length === 0) {
-      showNoResults(true);
+    if (!messages || messages.length === 0) {
+        showNoResults(true);
+        totalPages = 1;
+        updatePagination();
     } else {
-      showNoResults(false);
-      messages.forEach(msg => {
-        const messageElement = createMessageElement(msg);
-        messageContainer.appendChild(messageElement);
-      });
+        showNoResults(false);
+        messages.forEach(msg => {
+            const messageElement = createMessageElement(msg);
+            messageContainer.appendChild(messageElement);
+        });
     }
-  }
+}
 
   // Pagination Functions
   function updatePagination() {
     const pageNumbers = document.getElementById("pageNumbers");
     pageNumbers.innerHTML = "";
-
+  
     currentPageDisplay.textContent = currentPage;
     totalPagesDisplay.textContent = totalPages;
-
-    // Calculate visible page range
+  
+    // Calcular el rango visible de páginas
     const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
+  
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-
-    // Create page buttons
+  
+    // Crear los botones de página
     for (let i = startPage; i <= endPage; i++) {
       const pageButton = document.createElement("button");
       pageButton.className = `px-3 py-2 text-sm font-medium rounded-lg ${
@@ -322,13 +324,13 @@
       pageButton.addEventListener("click", () => {
         if (i !== currentPage) {
           currentPage = i;
-          fetchEmails("", i);
+          fetchEmails("", currentPage);
         }
       });
       pageNumbers.appendChild(pageButton);
     }
-
-    // Update navigation buttons state
+  
+    // Actualizar el estado de los botones de navegación
     document.getElementById("firstPage").disabled = currentPage === 1;
     document.getElementById("prevPage").disabled = currentPage === 1;
     document.getElementById("nextPage").disabled = currentPage === totalPages || totalPages === 0;
@@ -338,7 +340,7 @@
   // Main Functions
   async function fetchEmails(pageToken = "", page = 1) {
     showLoading(true);
-
+    showError(false);
     try {
         const response = await fetch(`/api/email/?pageToken=${pageToken}`, {
             method: "POST",
@@ -353,11 +355,11 @@
         });
 
         // Imprimir la respuesta en la consola para depuración
-        console.log("Respuesta de la API:", response); 
+        console.log("Respuesta de la API:", response);
 
         if (!response.ok) {
             // Si la respuesta indica un error, obtener el mensaje de error
-            const errorData = await response.json(); 
+            const errorData = await response.json();
             console.error("Error en la respuesta:", errorData);
             throw new Error(`Error al cargar los correos: ${response.status} - ${errorData.error || "Error desconocido"}`);
         }
@@ -368,14 +370,15 @@
         totalPages = data.total_pages;
         nextPageToken = data.next_page_token;
 
-        updateUI(data.message_contents);
+        // Verificar si data.message_contents está definido antes de actualizar la interfaz
+        updateUI(data.message_contents || []); // Pasa un arreglo vacío si data.message_contents es undefined
         updatePagination();
 
     } catch (error) {
         console.error("Error al obtener los correos:", error);
-        showError(true); 
+        showError(true);
         // Mostrar un mensaje de error más informativo al usuario
-        errorMessage.querySelector("p").textContent = `Error al cargar los correos: ${error.message}`; 
+        errorMessage.querySelector("p").textContent = `Error al cargar los correos: ${error.message}`;
     } finally {
         showLoading(false);
     }
@@ -452,14 +455,14 @@
   document.getElementById("prevPage").addEventListener("click", () => {
     if (currentPage > 1) {
       currentPage--;
-      fetchEmails();
+      fetchEmails("", currentPage);
     }
   });
 
   document.getElementById("nextPage").addEventListener("click", () => {
     if (currentPage < totalPages) {
       currentPage++;
-      fetchEmails(nextPageToken);
+      fetchEmails("", currentPage);
     }
   });
 
