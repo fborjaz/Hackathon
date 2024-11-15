@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
-from django.db.models import Avg
 from carbon_footprint import settings
 from vehicle.models import Vehicle
 from openai import OpenAI
@@ -56,7 +55,7 @@ class VehicleDataAnalytics:
         context = (
             "Eres un asistente especializado en análisis de datos de vehículos y cambio climático. "
             "Tu tarea es proporcionar explicaciones claras sobre predicciones de emisiones de CO₂ y cómo optimizarlas."
-            "Proporciona una respuesta corta y concisa para el propietario del vehículo, no uses fuentes especiales ni negritas."
+            "devuel tu respuesta en markdown."
         )
         question = (
             f"El motor tiene un tamaño de {engine_size} litros, {cylinders} cilindros, y un consumo de combustible combinado de {fuel_consumption_comb} L/100km. "
@@ -138,6 +137,9 @@ class VehicleDataAnalytics:
         # Agrupar por año y calcular el promedio de emisiones
         trends = data.groupby('year_of_manufacture')['co2_emissions'].mean().reset_index()
         trends['co2_emissions_change'] = trends['co2_emissions'].diff()
+
+        # Reemplazar NaN en la columna 'co2_emissions_change' con 0
+        trends['co2_emissions_change'].fillna(0, inplace=True)
 
         # Evaluar si el fabricante ha mejorado o empeorado
         last_year = trends.iloc[-1]

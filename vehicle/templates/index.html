@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 {% load static %}
 <html lang="es">
   <head>
@@ -6,7 +6,14 @@
     <link href="{% static 'styles/normalize.css' %}" rel="stylesheet" />
     <link href="{% static 'styles/skeleton.css' %}" rel="stylesheet" />
     <link href="{% static 'styles/index.css' %}" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/scrollreveal"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.0/marked.min.js"
+      integrity="sha512-/tpw1ej/DTEJDoX8qZM1YY8H9bz2+2T9nhojBmizu9JDVNvjXvgA3zfRjVF96V3bwK6Uf3eIqrYKIKRZx203iA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
     {% block styles %}{% endblock %}
     <title>CarCo2</title>
   </head>
@@ -17,7 +24,11 @@
         <ul class="nav-list">
           <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
           <li class="nav-item"><a class="nav-link" href="/view">CarCo2</a></li>
-          <li class="nav-item"><a class="nav-link" href="">EmailDelate</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="http://127.0.0.1:8000/api/email/"
+              >EmailDelate</a
+            >
+          </li>
         </ul>
       </nav>
     </div>
