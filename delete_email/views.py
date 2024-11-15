@@ -1,4 +1,5 @@
 import json
+import logging
 from django.http import JsonResponse
 from django.views import View
 from django.shortcuts import render
@@ -11,8 +12,30 @@ from google.oauth2.credentials import Credentials
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
+# Configurar el logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Scopes necesarios para acceder a Gmail y Google People
 SCOPES = ["https://mail.google.com/", "https://www.googleapis.com/auth/contacts.readonly"]
+
+
+# Función para autenticar y construir el servicio de Gmail
+def get_gmail_service():
+    creds = None
+    if os.path.exists("delete_email/token.json"):
+        creds = Credentials.from_authorized_user_file("delete_email/token.json", SCOPES)
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file("delete_email/credentials.json", SCOPES)
+            creds = flow.run_local_server(port=0, prompt='consent', authorization_prompt_message='', success_message="Authentication successful! Redirecting...")  
+        with open("delete_email/token.json", "w") as token:
+            token.write(creds.to_json())
+
+    return build("gmail", "v1", credentials=creds)
 
 @method_decorator(csrf_exempt, name="dispatch")
 class EmailSelectionView(View):
@@ -24,25 +47,9 @@ class EmailSelectionView(View):
         page_token = request.GET.get('pageToken')
         age = data.get('age', '1y')
 
-        creds = None
-        if os.path.exists("delete_email/token.json"):
-            creds = Credentials.from_authorized_user_file("delete_email/token.json", SCOPES)
-
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file("delete_email/credentials.json", SCOPES)
-                creds = flow.run_local_server(port=0)
-            with open("delete_email/token.json", "w") as token:
-                token.write(creds.to_json())
-
         try:
-            # Construir el servicio de Gmail
-            service = build("gmail", "v1", credentials=creds)
-            
-            # Construir el servicio de Google People para obtener fotos de perfil
-            people_service = build("people", "v1", credentials=creds)
+            service = get_gmail_service()
+            people_service = build("people", "v1", credentials=service._http.credentials)
 
             message_contents = []
             for category in ["promotions", "social"]:
@@ -64,10 +71,7 @@ class EmailSelectionView(View):
                     sender = next((header["value"] for header in headers if header["name"] == "From"), "Remitente desconocido")
                     subject = next((header["value"] for header in headers if header["name"] == "Subject"), "Sin asunto")
 
-                    # Extraer el correo electrónico del remitente
                     sender_email = sender.split('<')[-1].split('>')[0] if '<' in sender else sender
-
-                    # Obtener la foto de perfil del remitente usando la API de Google People
                     profile_image_url = self.get_profile_image(people_service, sender_email)
 
                     message_contents.append({
@@ -78,11 +82,14 @@ class EmailSelectionView(View):
                     })
 
             next_page_token = results.get('nextPageToken')
+            total_messages = results.get('resultSizeEstimate', 0)
+            total_pages = (total_messages + 9) // 10  # Redondear hacia arriba
 
-            return JsonResponse({'message_contents': message_contents, 'nextPageToken': next_page_token})
+            return JsonResponse({'message_contents': message_contents, 'next_page_token': next_page_token, 'total_pages': total_pages})
 
         except HttpError as error:
-            return JsonResponse({'error': str(error)})
+            logger.error(f"Error al obtener los correos electrónicos: {error.status_code} - {error.content}")
+            return JsonResponse({'error': str(error)}, status=error.status_code)
 
     def get_profile_image(self, people_service, email):
         try:
@@ -99,7 +106,6 @@ class EmailSelectionView(View):
         except HttpError:
             return "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon"  # Imagen por defecto en caso de error
 
-
 @method_decorator(csrf_exempt, name="dispatch")
 class DeleteEmailsView(View):
     def post(self, request, *args, **kwargs):
@@ -110,42 +116,18 @@ class DeleteEmailsView(View):
             return JsonResponse({'error': 'No emails selected for deletion.'}, status=400)
 
         try:
-            creds = Credentials.from_authorized_user_file("delete_email/token.json", SCOPES)
-            service = build("gmail", "v1", credentials=creds)
+            service = get_gmail_service()
 
-            for msg_id in message_ids:
-                service.users().messages().delete(userId="me", id=msg_id).execute()
-
-            return JsonResponse({'success': True})
-
-        except HttpError as error:
-            return JsonResponse({'error': f'Error deleting emails: {error}'}, status=500)
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class DeleteAllEmailsView(View):
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.body)
-        filter_messages = data.get('filter')
-        page_token = data.get('pageToken')
-        additional_criteria = data.get('additionalCriteria')
-
-        try:
-            creds = Credentials.from_authorized_user_file("delete_email/token.json", SCOPES)
-            service = build("gmail", "v1", credentials=creds)
-
-            results = service.users().messages().list(
-                userId="me", 
-                q=f"category:{filter_messages} {additional_criteria}",
-                pageToken=page_token if page_token else None
+            # Eliminar los correos electrónicos en lotes
+            service.users().messages().batchDelete(
+                userId="me",
+                body={
+                    "ids": message_ids
+                }
             ).execute()
-            messages = results.get("messages", [])
-            message_ids = [message['id'] for message in messages]
-
-            for msg_id in message_ids:
-                service.users().messages().delete(userId="me", id=msg_id).execute()
 
             return JsonResponse({'success': True})
 
         except HttpError as error:
+            logger.error(f"Error al eliminar los correos electrónicos: {error.status_code} - {error.content}")
             return JsonResponse({'error': f'Error deleting emails: {error}'}, status=500)
